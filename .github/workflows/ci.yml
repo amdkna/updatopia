@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-and-lint:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+
+    - name: Install dependencies
+      run: |
+        python -m venv .venv
+        source .venv/bin/activate
+        pip install --upgrade pip
+        pip install fastapi uvicorn pytest
+
+    - name: Run tests
+      run: |
+        source .venv/bin/activate
+        pytest --maxfail=1 --disable-warnings -q
+
+    - name: Check formatting with Black
+      run: |
+        source .venv/bin/activate
+        pip install black
+        black --check .
